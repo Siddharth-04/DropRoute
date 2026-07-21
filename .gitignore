@@ -3,7 +3,7 @@
 *.iml
 
 # Java
-target/
+**/target/
 
 # OS
 .DS_Store

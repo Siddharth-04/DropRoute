@@ -3,7 +3,9 @@ package com.droproute.backend.auth;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -29,14 +31,32 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request
     ) {
-        authService.login(
+        String token = authService.login(
                 request.getEmail(),
                 request.getPassword()
         );
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                new LoginResponse(token, "Bearer")
+        );
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MeResponse> me(Authentication authentication) {
+
+        UUID userId = (UUID) authentication.getPrincipal();
+
+        User user = authService.getCurrentUser(userId);
+
+        MeResponse response = new MeResponse(
+                user.getId().toString(),
+                user.getFullName(),
+                user.getEmail()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

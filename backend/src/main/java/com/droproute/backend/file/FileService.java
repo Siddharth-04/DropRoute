@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class FileService {
@@ -74,5 +76,18 @@ public class FileService {
                     e
             );
         }
+    }
+
+    public List<File> getFilesByOwnerId(UUID ownerId) {
+        return fileRepository.findAllByOwnerId(ownerId);
+    }
+
+    public File getFileById(UUID fileId, User owner) {
+
+        return fileRepository.findById(fileId)
+                .filter(file -> file.getOwner().getId().equals(owner.getId()))
+                .orElseThrow(() ->
+                        new IllegalArgumentException("File not found")
+                );
     }
 }

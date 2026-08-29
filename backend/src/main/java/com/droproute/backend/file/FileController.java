@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -53,5 +54,50 @@ public class FileController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<FileResponse>> getMyFiles(Authentication authentication) {
+
+        UUID userId = (UUID) authentication.getPrincipal();
+
+        List<File> files =
+                fileService.getFilesByOwnerId(userId);
+
+        List<FileResponse> response = files.stream()
+                .map(file -> new FileResponse(
+                        file.getId(),
+                        file.getOriginalName(),
+                        file.getSize(),
+                        file.getContentType(),
+                        file.getChecksum(),
+                        file.getCreatedAt()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<FileResponse> getFileById(@PathVariable UUID id, Authentication authentication){
+        UUID userId = (UUID) authentication.getPrincipal();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found")
+                );
+
+        File file = fileService.getFileById(id, user);
+
+        FileResponse response = new FileResponse(
+                file.getId(),
+                file.getOriginalName(),
+                file.getSize(),
+                file.getContentType(),
+                file.getChecksum(),
+                file.getCreatedAt()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -43,4 +43,12 @@ public class LocalFileStorageService implements FileStorageService {
 
         return targetLocation.toString();
     }
+
+    @Override
+    public void delete(String storagePath) throws IOException {
+
+        Path filePath = Paths.get(storagePath);
+
+        Files.deleteIfExists(filePath);
+    }
 }

@@ -90,4 +90,19 @@ public class FileService {
                         new IllegalArgumentException("File not found")
                 );
     }
+
+    public void deleteFile(UUID fileId, User owner) throws IOException {
+
+        File file = fileRepository.findById(fileId)
+                .filter(existingFile ->
+                        existingFile.getOwner().getId().equals(owner.getId())
+                )
+                .orElseThrow(() ->
+                        new IllegalArgumentException("File not found")
+                );
+
+        fileStorageService.delete(file.getStoragePath());
+
+        fileRepository.delete(file);
+    }
 }

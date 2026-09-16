@@ -100,4 +100,22 @@ public class FileController {
 
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFile(
+            @PathVariable UUID id,
+            Authentication authentication
+    ) throws IOException {
+
+        UUID userId = (UUID) authentication.getPrincipal();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found")
+                );
+
+        fileService.deleteFile(id, user);
+
+        return ResponseEntity.noContent().build();
+    }
 }

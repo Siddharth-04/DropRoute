@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 @Service
 public class LocalFileStorageService implements FileStorageService {
@@ -50,5 +52,19 @@ public class LocalFileStorageService implements FileStorageService {
         Path filePath = Paths.get(storagePath);
 
         Files.deleteIfExists(filePath);
+    }
+
+    @Override
+    public Resource load(String storagePath) {
+
+        Path filePath = Paths.get(storagePath);
+
+        Resource resource = new FileSystemResource(filePath);
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new IllegalArgumentException("File not found");
+        }
+
+        return resource;
     }
 }
